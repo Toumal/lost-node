@@ -23,8 +23,13 @@ if [ -z ${SF_ENVIRONMENT} ]
 fi
 
 # Install and compile project dependencies
-#cd /vagrant
-#npm install --production
+cd /vagrant
+npm install --production --no-bin-links
+cp /vagrant/node_modules/libxmljs/build/Release/lib.target/xmljs.node /vagrant/node_modules/libxmljs/build/
+export NODE_ENV=development
+node index.js -i
+#node index.js -t
+node index.js
 
 #
 # Done! Happy coding!
