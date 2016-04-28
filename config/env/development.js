@@ -3,7 +3,7 @@
 
 module.exports = {
     debug: true,
-    port: 8080,
+    port: 80,
     downloads: "/downloads",
     data: {
         api: "/lost.data.svc",
@@ -11,6 +11,7 @@ module.exports = {
     },
     lost: {
         api: "/lost.svc",
+        apinoauth: "/lostnoauth.svc",
         auth: null,
         source: "development.example.com"
     },

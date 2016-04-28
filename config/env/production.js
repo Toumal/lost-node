@@ -14,6 +14,7 @@ module.exports = {
     },
     lost: {
         api: "/lost.svc",
+        apinoauth: "/lostnoauth.svc",
         auth: null,
         source: "production.example.com"
     },

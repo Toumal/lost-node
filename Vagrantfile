@@ -5,7 +5,7 @@ $provision = <<SCRIPT
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y sudo nodejs nodejs-legacy mongodb npm git build-essential
+apt-get install -y sudo nodejs nodejs-legacy mongodb npm git mc build-essential
 npm install -g bower typescript
 export DEBIAN_FRONTEND=dialog
 
@@ -27,6 +27,7 @@ cd /vagrant
 npm install --production --no-bin-links
 cp /vagrant/node_modules/libxmljs/build/Release/lib.target/xmljs.node /vagrant/node_modules/libxmljs/build/
 export NODE_ENV=development
+
 node index.js -i
 #node index.js -t
 node index.js

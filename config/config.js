@@ -17,6 +17,7 @@ var config = {
     },
     lost: {
         api: "/lost.svc",
+        apinoauth: "/lostnoauth.svc",
         auth: null,
         source: "example.com"
     },

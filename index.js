@@ -5,7 +5,23 @@ var Q = require("q");
 
 Q.stopUnhandledRejectionTracking();
 
-var _ = require("lodash"), tools = require("./lib/tools"), colors = require("colors"), config = require("./config/config"), stdio = require("stdio"), fs = require("fs"), path = require("path"), http = require("http"), express = require("express"), favicon = require("serve-favicon"), FileStreamRotator = require("file-stream-rotator"), logger = require("morgan"), serveIndex = require("serve-index"), lostService = require("./routes/lostService"), odata = require("./lib/data"), dataLoader = require("./lib/data.loader");
+var _ = require("lodash"),
+    tools = require("./lib/tools"),
+    colors = require("colors"),
+    config = require("./config/config"),
+    stdio = require("stdio"),
+    fs = require("fs"),
+    path = require("path"),
+    http = require("http"),
+    express = require("express"),
+    favicon = require("serve-favicon"),
+    FileStreamRotator = require("file-stream-rotator"),
+    logger = require("morgan"),
+    serveIndex = require("serve-index"),
+    lostService = require("./routes/lostService"),
+    odata = require("./lib/data"),
+    dataLoader = require("./lib/data.loader"),
+    Keycloak = require('connect-keycloak');
 
 var options = stdio.getopt({
     dbinit: {
@@ -31,6 +47,10 @@ var options = stdio.getopt({
 var server;
 
 var app = express();
+
+var session = require('express-session');
+var memoryStore = new session.MemoryStore();
+var keycloak = new Keycloak({ store: memoryStore });
 
 global.odata = odata;
 
@@ -82,6 +102,20 @@ function configureServer() {
             }
         }
     }));
+
+    // Install sessing storage
+    app.use( session({
+        secret: 'RemlaSuprumNiqasKlorix',
+        resave: false,
+        saveUninitialized: true,
+        store: memoryStore,
+    } ));
+    // Install keycloak middleware
+    app.use( keycloak.middleware( {
+        logout: '/logout',
+        admin: '/',
+    } ));
+
     app.use(favicon("favicon.ico"));
     tools.logOK(msg + "DONE".green);
     return Q();
@@ -102,8 +136,12 @@ function configureAPI() {
     var msg = "Configure API's ...";
     tools.logInfo(msg);
     app.all(config.lost.api, lostService.crossSite);
-    app.post(config.lost.api, lostService.handleRequest);
+    app.all(config.lost.apinoauth, lostService.crossSite);
+    app.post(config.lost.api, keycloak.protect(), lostService.handleRequest);
+    app.post(config.lost.apinoauth, lostService.handleRequest);
+
     app.use(config.lost.api, lostService.handleError);
+    app.use(config.lost.apinoauth, lostService.handleError);
     return odata.initializeClient().then(function(dbContext) {
         odata.initializeServer(app).then(function() {
             tools.logOK(msg + "DONE".green);
